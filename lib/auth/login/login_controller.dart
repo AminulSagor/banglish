@@ -1,11 +1,14 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-
 import '../../routes_pages/app_routes.dart';
+import '../auth_service.dart';
+
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  final AuthService _authService = AuthService();
 
   void login() {
     final email = emailController.text.trim();
@@ -22,12 +25,22 @@ class LoginController extends GetxController {
     // Navigate after login: Get.offNamed(AppRoutes.home);
   }
 
-  void loginWithGoogle() {
-    // Google login logic
+  void loginWithGoogle() async {
+    try {
+      final userCredential = await _authService.signInWithGoogle();
+      if (userCredential != null) {
+        Get.snackbar("Success", "Logged in as ${userCredential.user?.displayName}",
+            backgroundColor: Colors.green, colorText: Colors.white);
+        Get.offNamed(AppRoutes.home);
+      }
+    } catch (e) {
+      Get.snackbar("Login Failed", e.toString(),
+          backgroundColor: Colors.red, colorText: Colors.white);
+    }
   }
 
   void loginWithFacebook() {
-    // Facebook login logic
+    // Facebook login logic (can be added similarly)
   }
 
   void goToSignUp() {

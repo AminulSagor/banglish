@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "594495158511",
+    "project_id": "quiz-app-71610",
+    "storage_bucket": "quiz-app-71610.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594495158511:android:b08903e818a04a9855431a",
+        "android_client_info": {
+          "package_name": "com.example.spoken"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApJUoBiLdEsz6NdptTMNczVY0O6r4V10k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594495158511:android:037acf8fc4cc396d55431a",
+        "android_client_info": {
+          "package_name": "com.somadan.quizapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApJUoBiLdEsz6NdptTMNczVY0O6r4V10k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
