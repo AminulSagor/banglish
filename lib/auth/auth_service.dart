@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -50,6 +51,55 @@ class AuthService {
       rethrow;
     }
   }
+
+
+  Future<UserCredential?> signInWithFacebook() async {
+    try {
+      // Only request public_profile permission
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ['public_profile'],
+      );
+
+      if (result.status == LoginStatus.success) {
+        final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(result.accessToken!.token);
+
+        final userCredential =
+        await _auth.signInWithCredential(facebookAuthCredential);
+
+        final user = userCredential.user;
+
+        if (user != null) {
+          final userDoc = _firestore.collection('users').doc(user.uid);
+
+          final exists = (await userDoc.get()).exists;
+
+          if (!exists) {
+            await userDoc.set({
+              'uid': user.uid,
+              'email': user.email ?? '', // ✅ Optional, fallback to empty
+              'name': user.displayName ?? '',
+              'photoUrl': user.photoURL ?? '',
+              'createdAt': FieldValue.serverTimestamp(),
+              'lastLogin': FieldValue.serverTimestamp(),
+            });
+          } else {
+            await userDoc.update({
+              'lastLogin': FieldValue.serverTimestamp(),
+            });
+          }
+        }
+
+        return userCredential;
+      } else {
+        throw Exception("Facebook login failed: ${result.status}");
+      }
+    } catch (e) {
+      print("❌ Facebook Sign-In Error: $e");
+      rethrow;
+    }
+  }
+
 
   Future<void> signOut() async {
     await _googleSignIn.signOut();

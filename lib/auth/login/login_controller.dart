@@ -39,9 +39,20 @@ class LoginController extends GetxController {
     }
   }
 
-  void loginWithFacebook() {
-    // Facebook login logic (can be added similarly)
+  void loginWithFacebook() async {
+    try {
+      final userCredential = await _authService.signInWithFacebook();
+      if (userCredential != null) {
+        Get.snackbar("Success", "Logged in as ${userCredential.user?.displayName}",
+            backgroundColor: Colors.green, colorText: Colors.white);
+        Get.offNamed(AppRoutes.home);
+      }
+    } catch (e) {
+      Get.snackbar("Login Failed", e.toString(),
+          backgroundColor: Colors.red, colorText: Colors.white);
+    }
   }
+
 
   void goToSignUp() {
     Get.toNamed(AppRoutes.signUp);
