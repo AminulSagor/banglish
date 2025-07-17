@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -51,6 +54,29 @@ class AuthService {
       rethrow;
     }
   }
+
+
+
+  Future<void> sendOTPEmail(String email, String otp) async {
+    final smtpUsername = dotenv.env['SMTP_USER'] ?? '';
+    final smtpPassword = dotenv.env['SMTP_PASS'] ?? '';
+
+    final smtpServer = gmail(smtpUsername, smtpPassword);
+
+    final message = Message()
+      ..from = Address(smtpUsername, 'GardenAid')
+      ..recipients.add(email)
+      ..subject = 'Your GardenAid OTP Code'
+      ..text = 'Your OTP code is: $otp';
+
+    try {
+      await send(message, smtpServer);
+    } catch (e) {
+      print('❌ Email send failed: $e');
+      rethrow;
+    }
+  }
+
 
 
   Future<UserCredential?> signInWithFacebook() async {

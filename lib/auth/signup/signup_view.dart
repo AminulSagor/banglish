@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,93 +24,142 @@ class SignUpView extends StatelessWidget {
               _buildInput("Email", controller.emailController),
 
               // Country Dropdown (Searchable)
-              Obx(() => DropdownButtonFormField<String>(
-                value: controller.selectedCountry.value.isEmpty
-                    ? null
-                    : controller.selectedCountry.value,
-                items: controller.countryList
-                    .map((country) => DropdownMenuItem(
-                  value: country,
-                  child: Text(country),
-                ))
-                    .toList(),
-                onChanged: (value) {
-                  controller.selectedCountry.value = value!;
-                },
-                decoration: _inputDecoration('Country'),
-              )),
+              Obx(
+                () => DropdownSearch<String>(
+                  items: controller.countryList,
+                  selectedItem:
+                      controller.selectedCountry.value.isEmpty
+                          ? null
+                          : controller.selectedCountry.value,
+                  onChanged: (value) {
+                    if (value != null) {
+                      controller.selectedCountry.value = value;
+                    }
+                  },
+                  dropdownDecoratorProps: DropDownDecoratorProps(
+                    dropdownSearchDecoration: _inputDecoration('Country'),
+                  ),
+                  popupProps: PopupProps.menu(
+                    showSearchBox: true,
+                    searchFieldProps: TextFieldProps(
+                      decoration: InputDecoration(
+                        hintText: "Search country",
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
 
               SizedBox(height: 16.h),
 
               // Division (if country == Bangladesh)
-              Obx(() => controller.selectedCountry.value.toLowerCase() == 'bangladesh'
-                  ? DropdownButtonFormField<String>(
-                value: controller.selectedDivision.value.isEmpty
-                    ? null
-                    : controller.selectedDivision.value,
-                items: controller.divisionList
-                    .map((div) => DropdownMenuItem(
-                  value: div,
-                  child: Text(div),
-                ))
-                    .toList(),
-                onChanged: (value) {
-                  controller.selectedDivision.value = value!;
-                },
-                decoration: _inputDecoration('Division'),
-              )
-                  : SizedBox.shrink()),
+              Obx(
+                () =>
+                    controller.selectedCountry.value.toLowerCase() ==
+                            'bangladesh'
+                        ? DropdownButtonFormField<String>(
+                          value:
+                              controller.selectedDivision.value.isEmpty
+                                  ? null
+                                  : controller.selectedDivision.value,
+                          items:
+                              controller.divisionList
+                                  .map(
+                                    (div) => DropdownMenuItem(
+                                      value: div,
+                                      child: Text(div),
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged: (value) {
+                            controller.selectedDivision.value = value!;
+                          },
+                          decoration: _inputDecoration('Division'),
+                        )
+                        : SizedBox.shrink(),
+              ),
 
               // Show space only if country is Bangladesh
-              Obx(() => controller.selectedCountry.value.toLowerCase() == 'bangladesh'
-                  ? SizedBox(height: 16.h)
-                  : SizedBox.shrink()),
-
+              Obx(
+                () =>
+                    controller.selectedCountry.value.toLowerCase() ==
+                            'bangladesh'
+                        ? SizedBox(height: 16.h)
+                        : SizedBox.shrink(),
+              ),
 
               // District (if country == Bangladesh)
-              Obx(() => controller.selectedCountry.value.toLowerCase() == 'bangladesh'
-                  ? DropdownButtonFormField<String>(
-                value: controller.selectedDistrict.value.isEmpty
-                    ? null
-                    : controller.selectedDistrict.value,
-                items: controller.districtList
-                    .map((dist) => DropdownMenuItem(
-                  value: dist,
-                  child: Text(dist),
-                ))
-                    .toList(),
-                onChanged: (value) {
-                  controller.selectedDistrict.value = value!;
-                },
-                decoration: _inputDecoration('District'),
-              )
-                  : SizedBox.shrink()),
+              Obx(
+                () =>
+                    controller.selectedCountry.value.toLowerCase() ==
+                            'bangladesh'
+                        ? DropdownButtonFormField<String>(
+                          value:
+                              controller.selectedDistrict.value.isEmpty
+                                  ? null
+                                  : controller.selectedDistrict.value,
+                          items:
+                              controller.districtList
+                                  .map(
+                                    (dist) => DropdownMenuItem(
+                                      value: dist,
+                                      child: Text(dist),
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged: (value) {
+                            controller.selectedDistrict.value = value!;
+                          },
+                          decoration: _inputDecoration('District'),
+                        )
+                        : SizedBox.shrink(),
+              ),
 
               // Show space only if country is Bangladesh
-              Obx(() => controller.selectedCountry.value.toLowerCase() == 'bangladesh'
-                  ? SizedBox(height: 16.h)
-                  : SizedBox.shrink()),
-
+              Obx(
+                () =>
+                    controller.selectedCountry.value.toLowerCase() ==
+                            'bangladesh'
+                        ? SizedBox(height: 16.h)
+                        : SizedBox.shrink(),
+              ),
 
               // Gender
-              Obx(() => DropdownButtonFormField<String>(
-                value: controller.selectedGender.value,
-                items: ['Male', 'Female', 'Other']
-                    .map((gender) => DropdownMenuItem(
-                  value: gender,
-                  child: Text(gender),
-                ))
-                    .toList(),
-                onChanged: (value) {
-                  controller.selectedGender.value = value!;
-                },
-                decoration: _inputDecoration('Gender'),
-              )),
+              Obx(
+                () => DropdownButtonFormField<String>(
+                  value: controller.selectedGender.value,
+                  items:
+                      ['Male', 'Female', 'Other']
+                          .map(
+                            (gender) => DropdownMenuItem(
+                              value: gender,
+                              child: Text(gender),
+                            ),
+                          )
+                          .toList(),
+                  onChanged: (value) {
+                    controller.selectedGender.value = value!;
+                  },
+                  decoration: _inputDecoration('Gender'),
+                ),
+              ),
 
               SizedBox(height: 16.h),
 
-              _buildInput("Password", controller.passwordController, obscure: true),
-              _buildInput("Confirm Password", controller.confirmPasswordController, obscure: true),
+              _buildInput(
+                "Password",
+                controller.passwordController,
+                obscure: true,
+              ),
+              _buildInput(
+                "Confirm Password",
+                controller.confirmPasswordController,
+                obscure: true,
+              ),
 
               SizedBox(height: 30.h),
 
@@ -143,7 +193,9 @@ class SignUpView extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Get.toNamed('/login'); // Replace with your actual login route
+                        Get.toNamed(
+                          '/login',
+                        ); // Replace with your actual login route
                       },
                       child: Text(
                         "Login",
@@ -157,7 +209,6 @@ class SignUpView extends StatelessWidget {
                   ],
                 ),
               ),
-
             ],
           ),
         ),
@@ -165,8 +216,12 @@ class SignUpView extends StatelessWidget {
     );
   }
 
-  Widget _buildInput(String label, TextEditingController controller,
-      {bool obscure = false, Function(String)? onChanged}) {
+  Widget _buildInput(
+    String label,
+    TextEditingController controller, {
+    bool obscure = false,
+    Function(String)? onChanged,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
       child: TextField(

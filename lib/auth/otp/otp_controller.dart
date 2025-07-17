@@ -1,15 +1,24 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../routes_pages/app_routes.dart';
+import '../auth_service.dart';
 
 class OTPController extends GetxController {
   final otpControllers = List.generate(5, (_) => TextEditingController());
   final otpFocusNodes = List.generate(5, (_) => FocusNode());
+  final AuthService _authService = AuthService();
 
   RxInt secondsRemaining = 30.obs;
   Timer? _timer;
   RxBool isResendEnabled = false.obs;
   RxString email = ''.obs;
+
+  // ✅ Add this line to fix the error
+  RxString expectedOtp = ''.obs;
 
   @override
   void onInit() {
@@ -32,22 +41,49 @@ class OTPController extends GetxController {
     });
   }
 
-  void resendCode() {
-    if (isResendEnabled.value) {
-      // TODO: Call resend API here
+  void resendCode() async {
+    if (!isResendEnabled.value) return;
+
+    final newOtp = (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
+
+    try {
+      await _authService.sendOTPEmail(email.value, newOtp);
+      expectedOtp.value = newOtp;
+      Get.snackbar('OTP Sent', 'A new OTP has been sent to your email.');
       startTimer();
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to resend OTP: $e');
     }
   }
 
-  void submitOTP() {
+
+
+  void submitOTP() async {
     final code = otpControllers.map((c) => c.text).join();
+
     if (code.length != 5) {
       Get.snackbar('Error', 'Please enter the 5-digit code.');
       return;
     }
 
-    // TODO: Submit the code via API
-    print('Submitted OTP: $code');
+    if (code == expectedOtp.value) {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+          'isLoggedIn': true,
+          'isVerified': true,
+          'lastLogin': FieldValue.serverTimestamp(),
+        });
+
+        Get.snackbar('Success', 'OTP Verified!');
+        Get.offAllNamed(AppRoutes.home); // ✅ Go to Home
+      } else {
+        Get.snackbar('Error', 'User not found.');
+      }
+    } else {
+      Get.snackbar('Error', 'Invalid OTP. Please try again.');
+    }
   }
 
   @override

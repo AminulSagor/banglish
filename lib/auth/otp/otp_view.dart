@@ -6,8 +6,10 @@ import 'otp_controller.dart';
 class OTPView extends StatelessWidget {
   final controller = Get.put(OTPController());
 
-  OTPView({super.key}) {
-    controller.email.value = 'your_email@example.com'; // You can pass this from previous screen
+  OTPView({Key? key}) : super(key: key) {
+    final args = Get.arguments as Map<String, String>;
+    controller.email.value = args['email'] ?? '';
+    controller.expectedOtp.value = args['otp'] ?? '';
   }
 
   @override

@@ -20,17 +20,21 @@ class ProfileView extends StatelessWidget {
           Obx(() => controller.isSelf.value
               ? PopupMenuButton<String>(
             onSelected: (value) {
+              if (value == 'logout') controller.logout();
               if (value == 'delete') controller.deleteProfile();
               if (value == 'change_password') controller.changePassword();
             },
             icon: const Icon(Icons.more_vert),
             itemBuilder: (_) => const [
+
               PopupMenuItem(value: 'delete', child: Text("Delete Profile")),
               PopupMenuItem(value: 'change_password', child: Text("Change Password")),
+              PopupMenuItem(value: 'logout', child: Text("Logout")),
             ],
           )
               : const SizedBox()),
         ],
+
       ),
       body: Obx(
             () => SingleChildScrollView(
