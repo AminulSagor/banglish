@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../routes_pages/app_routes.dart';
 import '../auth_service.dart';
 
@@ -16,9 +16,8 @@ class OTPController extends GetxController {
   Timer? _timer;
   RxBool isResendEnabled = false.obs;
   RxString email = ''.obs;
-
-  // ✅ Add this line to fix the error
   RxString expectedOtp = ''.obs;
+  RxBool isForgetPass = false.obs;
 
   @override
   void onInit() {
@@ -44,8 +43,7 @@ class OTPController extends GetxController {
   void resendCode() async {
     if (!isResendEnabled.value) return;
 
-    final newOtp = (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
-
+    final newOtp = _generateOTP(5);
     try {
       await _authService.sendOTPEmail(email.value, newOtp);
       expectedOtp.value = newOtp;
@@ -56,7 +54,10 @@ class OTPController extends GetxController {
     }
   }
 
-
+  String _generateOTP(int length) {
+    final random = Random();
+    return List.generate(length, (_) => random.nextInt(10)).join();
+  }
 
   void submitOTP() async {
     final code = otpControllers.map((c) => c.text).join();
@@ -67,19 +68,38 @@ class OTPController extends GetxController {
     }
 
     if (code == expectedOtp.value) {
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-          'isLoggedIn': true,
-          'isVerified': true,
-          'lastLogin': FieldValue.serverTimestamp(),
-        });
-
+      if (isForgetPass.value) {
         Get.snackbar('Success', 'OTP Verified!');
-        Get.offAllNamed(AppRoutes.home); // ✅ Go to Home
-      } else {
-        Get.snackbar('Error', 'User not found.');
+        Get.toNamed(AppRoutes.changePassword, arguments: {'email': email.value});
+        return;
+      }
+
+      try {
+        final query = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: email.value)
+            .limit(1)
+            .get();
+
+        if (query.docs.isNotEmpty) {
+          final doc = query.docs.first;
+          final docId = doc.id;
+
+          await FirebaseFirestore.instance.collection('users').doc(docId).update({
+            'isVerified': true,
+            'lastLogin': FieldValue.serverTimestamp(),
+          });
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('uid', docId);
+
+          Get.snackbar('Success', 'Account Verified!');
+          Get.offAllNamed(AppRoutes.home);
+        } else {
+          Get.snackbar('Error', 'User not found.');
+        }
+      } catch (e) {
+        Get.snackbar('Error', 'Something went wrong: $e');
       }
     } else {
       Get.snackbar('Error', 'Invalid OTP. Please try again.');

@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../routes_pages/app_routes.dart';
 import '../auth_service.dart';
 
@@ -11,6 +15,13 @@ class LoginController extends GetxController {
   final passwordController = TextEditingController();
 
   final AuthService _authService = AuthService();
+
+
+  String hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
 
   void login() async {
     final email = emailController.text.trim();
@@ -23,26 +34,32 @@ class LoginController extends GetxController {
     }
 
     try {
-      // 🔐 Sign in using FirebaseAuth
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      // 🔍 Get user by email
+      final query = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
 
-      final uid = credential.user?.uid;
-      if (uid == null) throw 'User UID not found';
-
-      // 📄 Fetch user info from Firestore
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
-
-      if (!userDoc.exists) {
-        Get.snackbar('Error', 'User data not found in Firestore',
+      if (query.docs.isEmpty) {
+        Get.snackbar('Error', 'User not found',
             backgroundColor: Colors.red, colorText: Colors.white);
         return;
       }
 
-      final userData = userDoc.data()!;
+      final doc = query.docs.first;
+      final userData = doc.data();
+      final storedHashedPassword = userData['password'];
       final isVerified = userData['isVerified'] ?? false;
+
+      // 🔐 Hash entered password
+      final hashedInputPassword = hashPassword(password);
+
+      if (hashedInputPassword != storedHashedPassword) {
+        Get.snackbar('Error', 'Incorrect password',
+            backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
 
       if (!isVerified) {
         Get.snackbar('Not Verified', 'Please verify your email before login.',
@@ -51,20 +68,24 @@ class LoginController extends GetxController {
       }
 
       // ✅ Update login flag
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+      await FirebaseFirestore.instance.collection('users').doc(doc.id).update({
         'isLoggedIn': true,
         'lastLogin': FieldValue.serverTimestamp(),
       });
 
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('uid', doc.id);
+
       // 🎯 Navigate to home
       Get.offNamed(AppRoutes.home);
-
     } catch (e) {
       Get.snackbar('Login Failed', e.toString(),
           backgroundColor: Colors.red, colorText: Colors.white);
       print('❌ Login Error: $e');
     }
   }
+
 
 
   void loginWithGoogle() async {

@@ -1,16 +1,20 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../routes_pages/app_routes.dart';
 import '../auth_service.dart';
-import '../otp/otp_view.dart';
+
 
 class SignUpController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
   final confirmPasswordController = TextEditingController();
 
   var countryList = <String>[
@@ -222,6 +226,14 @@ class SignUpController extends GetxController {
 
   var selectedGender = 'Male'.obs;
 
+
+
+  String hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString(); // returns 64-character SHA-256 hash
+  }
+
   void signUp() async {
     final email = emailController.text.trim();
     final name = nameController.text.trim();
@@ -261,19 +273,21 @@ class SignUpController extends GetxController {
       // 🔑 Generate OTP
       final otp = (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
 
-      // 📝 Save user data to Firestore
+
+
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
         'uid': uid,
         'email': email,
         'name': name,
+        'password': hashPassword(password), // securely stored
         'country': country,
         'division': division,
         'district': district,
         'gender': gender,
-        'isLoggedIn': false,
         'isVerified': false,
         'createdAt': FieldValue.serverTimestamp(),
       });
+
 
       // ✉️ Send OTP
       await _authService.sendOTPEmail(email, otp);
@@ -282,7 +296,9 @@ class SignUpController extends GetxController {
       Get.toNamed(AppRoutes.otp, arguments: {
         'email': email,
         'otp': otp,
+        'isForgetPass': false,
       });
+
     } catch (e) {
       print('❌ SignUp Error: $e');
       Get.snackbar("Error", "Failed: $e");

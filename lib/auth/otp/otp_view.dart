@@ -7,9 +7,12 @@ class OTPView extends StatelessWidget {
   final controller = Get.put(OTPController());
 
   OTPView({Key? key}) : super(key: key) {
-    final args = Get.arguments as Map<String, String>;
-    controller.email.value = args['email'] ?? '';
-    controller.expectedOtp.value = args['otp'] ?? '';
+    final args = Get.arguments;
+    if (args is Map<String, dynamic>) {
+      controller.email.value = args['email'] ?? '';
+      controller.expectedOtp.value = args['otp'] ?? '';
+      controller.isForgetPass.value = args['isForgetPass'] ?? false;
+    }
   }
 
   @override
@@ -21,23 +24,14 @@ class OTPView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo
             Image.asset('assets/logo.png', height: 100.h),
-
             SizedBox(height: 32.h),
-
-            Text(
-              "Enter the 5-digit code sent to",
-              style: TextStyle(fontSize: 16.sp),
-            ),
-
+            Text("Enter the 5-digit code sent to", style: TextStyle(fontSize: 16.sp)),
             Obx(() => Text(
               controller.email.value,
               style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
             )),
-
             SizedBox(height: 32.h),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(5, (index) {
@@ -70,19 +64,17 @@ class OTPView extends StatelessWidget {
                 );
               }),
             ),
-
             SizedBox(height: 24.h),
-
             Obx(() => controller.isResendEnabled.value
                 ? TextButton(
               onPressed: controller.resendCode,
               child: const Text("Resend Code"),
             )
-                : Text("Resend in ${controller.secondsRemaining.value}s",
-                style: TextStyle(fontSize: 14.sp, color: Colors.grey))),
-
+                : Text(
+              "Resend in ${controller.secondsRemaining.value}s",
+              style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+            )),
             SizedBox(height: 24.h),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

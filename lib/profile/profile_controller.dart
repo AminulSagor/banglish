@@ -1,48 +1,93 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class ProfileController extends GetxController {
   var isEditable = false.obs;
-  var isSelf = true.obs; // toggle this for testing
-  var name = "Aminul Islam".obs;
-  var email = "aminul@example.com".obs;
-  var gender = "Male".obs;
-  var country = "Bangladesh".obs;
-  var division = "Dhaka".obs;
-  var district = "Gazipur".obs;
+  var isSelf = true.obs;
 
-  void toggleEdit() => isEditable.value = !isEditable.value;
-  void saveProfile() {
-    isEditable.value = false;
-    // TODO: Save logic here
+  var name = ''.obs;
+  var email = ''.obs;
+  var gender = ''.obs;
+  var country = ''.obs;
+  var division = ''.obs;
+  var district = ''.obs;
+
+  String? userDocId;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchUserProfile();
   }
 
-  void deleteProfile() {
-    // TODO: Delete logic
-    Get.snackbar("Deleted", "Your profile has been deleted");
-  }
-
-  void changePassword() {
-    // TODO: Navigate to change password screen
-  }
-
-  void callUser() {
-    // TODO: Launch phone dialer
-  }
-
-  void messageUser() {
-    // TODO: Navigate to chat screen
-  }
-
-  void logout() async {
+  Future<void> fetchUserProfile() async {
     try {
-      await FirebaseAuth.instance.signOut();
-      Get.offAllNamed('/login'); // 👈 Adjust route if needed
+      final prefs = await SharedPreferences.getInstance();
+      final uid = prefs.getString("uid"); // You should save this after login
+      if (uid == null) {
+        Get.snackbar("Error", "User ID not found");
+        return;
+      }
+
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!doc.exists) {
+        Get.snackbar("Error", "User not found");
+        return;
+      }
+
+      final data = doc.data()!;
+      userDocId = doc.id;
+
+      name.value = data['name'] ?? '';
+      email.value = data['email'] ?? '';
+      gender.value = data['gender'] ?? '';
+      country.value = data['country'] ?? '';
+      division.value = data['division'] ?? '';
+      district.value = data['district'] ?? '';
     } catch (e) {
-      Get.snackbar('Logout Failed', e.toString(),
-          backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar("Error", e.toString());
     }
   }
 
+  Future<void> saveProfile() async {
+    try {
+      if (userDocId == null) return;
+
+      await FirebaseFirestore.instance.collection('users').doc(userDocId).update({
+        'name': name.value,
+        'gender': gender.value,
+        'country': country.value,
+        'division': division.value,
+        'district': district.value,
+      });
+
+      isEditable.value = false;
+      Get.snackbar("Success", "Profile updated");
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+    }
+  }
+
+  void toggleEdit() => isEditable.value = !isEditable.value;
+
+  void deleteProfile() {
+    Get.snackbar("Deleted", "Your profile has been deleted");
+    // optional: implement real deletion logic
+  }
+
+  void changePassword() {
+    // Implement password change navigation or modal
+  }
+
+  void logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('uid');
+    Get.offAllNamed('/login'); // Make sure this route exists in your AppRoutes
+  }
+
+
+  void callUser() {}
+  void messageUser() {}
 }
