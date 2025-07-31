@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -91,8 +90,31 @@ class LoginController extends GetxController {
   void loginWithGoogle() async {
     try {
       final userCredential = await _authService.signInWithGoogle();
-      if (userCredential != null) {
-        Get.snackbar("Success", "Logged in as ${userCredential.user?.displayName}",
+      final user = userCredential?.user;
+
+      if (user != null) {
+        final email = user.email;
+
+        // 🔍 Find user in Firestore by email
+        final query = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+        if (query.docs.isEmpty) {
+          Get.snackbar('Error', 'User record not found in Firestore',
+              backgroundColor: Colors.red, colorText: Colors.white);
+          return;
+        }
+
+        final doc = query.docs.first;
+
+        // ✅ Save UID
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('uid', doc.id);
+
+        Get.snackbar("Success", "Logged in as ${user.displayName}",
             backgroundColor: Colors.green, colorText: Colors.white);
         Get.offNamed(AppRoutes.home);
       }
@@ -102,11 +124,35 @@ class LoginController extends GetxController {
     }
   }
 
+
   void loginWithFacebook() async {
     try {
       final userCredential = await _authService.signInWithFacebook();
-      if (userCredential != null) {
-        Get.snackbar("Success", "Logged in as ${userCredential.user?.displayName}",
+      final user = userCredential?.user;
+
+      if (user != null) {
+        final email = user.email;
+
+        // 🔍 Find user in Firestore by email
+        final query = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+        if (query.docs.isEmpty) {
+          Get.snackbar('Error', 'User record not found in Firestore',
+              backgroundColor: Colors.red, colorText: Colors.white);
+          return;
+        }
+
+        final doc = query.docs.first;
+
+        // ✅ Save UID
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('uid', doc.id);
+
+        Get.snackbar("Success", "Logged in as ${user.displayName}",
             backgroundColor: Colors.green, colorText: Colors.white);
         Get.offNamed(AppRoutes.home);
       }
@@ -115,6 +161,7 @@ class LoginController extends GetxController {
           backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
+
 
 
   void goToSignUp() {

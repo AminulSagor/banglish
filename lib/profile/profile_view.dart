@@ -26,7 +26,6 @@ class ProfileView extends StatelessWidget {
             },
             icon: const Icon(Icons.more_vert),
             itemBuilder: (_) => const [
-
               PopupMenuItem(value: 'delete', child: Text("Delete Profile")),
               PopupMenuItem(value: 'change_password', child: Text("Change Password")),
               PopupMenuItem(value: 'logout', child: Text("Logout")),
@@ -34,7 +33,6 @@ class ProfileView extends StatelessWidget {
           )
               : const SizedBox()),
         ],
-
       ),
       body: Obx(
             () => SingleChildScrollView(
@@ -43,18 +41,26 @@ class ProfileView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircleAvatar(
-                  radius: 50.r,
-                  backgroundColor: Colors.blue.shade100,
-                  child: Text(
-                    controller.name.value.isNotEmpty
-                        ? controller.name.value[0].toUpperCase()
-                        : '',
-                    style: TextStyle(fontSize: 32.sp, color: Colors.blueGrey),
-                  ),
-                ),
-                SizedBox(height: 20.h),
+                Obx(() {
+                  final photoUrl = controller.photoUrl.value;
+                  final hasPhoto = photoUrl.isNotEmpty;
 
+                  return CircleAvatar(
+                    radius: 50.r,
+                    backgroundColor: Colors.blue.shade100,
+                    backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
+                    child: !hasPhoto
+                        ? Text(
+                      controller.nameController.text.isNotEmpty
+                          ? controller.nameController.text[0].toUpperCase()
+                          : '',
+                      style: TextStyle(fontSize: 32.sp, color: Colors.blueGrey),
+                    )
+                        : null,
+                  );
+                }),
+
+                SizedBox(height: 20.h),
                 // Profile Card
                 Container(
                   width: double.infinity,
@@ -74,54 +80,89 @@ class ProfileView extends StatelessWidget {
                     children: [
                       _buildTextField(
                         label: "Name",
-                        value: controller.name.value,
+                        controller: controller.nameController,
                         isEditable: controller.isEditable.value,
-                        onChanged: (v) => controller.name.value = v,
                       ),
                       if (controller.isSelf.value)
                         _buildTextField(
                           label: "Email",
-                          value: controller.email.value,
+                          controller: controller.emailController,
                           isEditable: false,
                         ),
-                      _buildTextField(
+
+                      // Gender Dropdown
+                      controller.isEditable.value
+                          ? DropdownButtonFormField<String>(
+                        value: controller.genderController.text.isNotEmpty
+                            ? controller.genderController.text
+                            : null,
+                        items: ['Male', 'Female', 'Other'].map((gender) {
+                          return DropdownMenuItem(
+                            value: gender,
+                            child: Text(gender),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            controller.genderController.text = value;
+                          }
+                        },
+                        decoration: _inputDecoration('Gender'),
+                      )
+                          : _buildTextField(
                         label: "Gender",
-                        value: controller.gender.value,
-                        isEditable: controller.isEditable.value,
-                        onChanged: (v) => controller.gender.value = v,
+                        controller: controller.genderController,
+                        isEditable: false,
                       ),
-                      _buildTextField(
+
+                      SizedBox(height: 16.h),
+
+                      // Country Dropdown
+                      controller.isEditable.value
+                          ? DropdownButtonFormField<String>(
+                        value: controller.countryController.text.isNotEmpty
+                            ? controller.countryController.text
+                            : null,
+                        items: controller.countryList.map((country) {
+                          return DropdownMenuItem(
+                            value: country,
+                            child: Text(country),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            controller.countryController.text = value;
+                          }
+                        },
+                        decoration: _inputDecoration('Country'),
+                      )
+                          : _buildTextField(
                         label: "Country",
-                        value: controller.country.value,
-                        isEditable: controller.isEditable.value,
-                        onChanged: (v) => controller.country.value = v,
+                        controller: controller.countryController,
+                        isEditable: false,
                       ),
-                      if (controller.country.value.toLowerCase() == 'bangladesh') ...[
+
+                      if (controller.countryController.text.toLowerCase() == 'bangladesh') ...[
                         _buildTextField(
                           label: "Division",
-                          value: controller.division.value,
+                          controller: controller.divisionController,
                           isEditable: controller.isEditable.value,
-                          onChanged: (v) => controller.division.value = v,
                         ),
                         _buildTextField(
                           label: "District",
-                          value: controller.district.value,
+                          controller: controller.districtController,
                           isEditable: controller.isEditable.value,
-                          onChanged: (v) => controller.district.value = v,
                         ),
                       ],
                     ],
-                  ),
+                  )
+
                 ),
-
                 SizedBox(height: 20.h),
-
                 if (controller.isSelf.value && !controller.isEditable.value)
                   _buildButton("Update", controller.toggleEdit),
-
                 if (controller.isSelf.value && controller.isEditable.value)
                   _buildButton("Save", controller.saveProfile),
-
                 if (!controller.isSelf.value)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -140,18 +181,15 @@ class ProfileView extends StatelessWidget {
 
   Widget _buildTextField({
     required String label,
-    required String value,
+    required TextEditingController controller,
     required bool isEditable,
-    Function(String)? onChanged,
   }) {
-    final controller = TextEditingController(text: value);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: TextField(
-        enabled: isEditable,
         controller: controller,
-        onChanged: onChanged,
-        style: TextStyle(color: Colors.black), // Keeps text same for disabled
+        enabled: isEditable,
+        style: TextStyle(color: Colors.black),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: Colors.black87),
@@ -196,4 +234,24 @@ class ProfileView extends StatelessWidget {
       onPressed: onPressed,
     );
   }
+
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.black87),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+    );
+  }
+
 }

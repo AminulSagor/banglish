@@ -48,7 +48,7 @@ class FilterBoxWidget extends StatelessWidget {
               child: Obx(() => DropdownButtonFormField<String>(
                 value: controller.selectedCountry.value,
                 decoration: _decoratedField("Country"),
-                items: ['Bangladesh', 'USA', 'India']
+                items: ['Bangladesh', 'USA', 'India','Afghanistan']
                     .map((c) =>
                     DropdownMenuItem(value: c, child: Text(c)))
                     .toList(),

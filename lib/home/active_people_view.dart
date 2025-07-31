@@ -1,26 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import '../widget/active_person_card.dart';
 import '../widget/filter_box_widget.dart';
+import 'active_people_controller.dart';
 
 class ActivePeopleView extends StatelessWidget {
-  final List<Map<String, String>> people = [
-    {
-      'name': 'Aminul Islam',
-      'country': 'Bangladesh',
-      'division': 'Dhaka',
-      'district': 'Gazipur',
-      'gender': 'Male',
-      'image': '',
-    },
-    {
-      'name': 'Emily Watson',
-      'country': 'USA',
-      'gender': 'Female',
-      'image': '',
-    },
-  ];
+  final ActivePeopleController controller = Get.put(ActivePeopleController());
 
   ActivePeopleView({super.key});
 
@@ -44,7 +31,6 @@ class ActivePeopleView extends StatelessWidget {
         padding: EdgeInsets.all(16.w),
         child: Column(
           children: [
-            // Search box
             TextField(
               decoration: InputDecoration(
                 hintText: 'Search people...',
@@ -62,21 +48,49 @@ class ActivePeopleView extends StatelessWidget {
             ),
 
             SizedBox(height: 12.h),
-
-            // Filter box
             const FilterBoxWidget(),
-
             SizedBox(height: 12.h),
 
-            // People list
             Expanded(
-              child: ListView.builder(
-                itemCount: people.length,
-                itemBuilder: (context, index) {
-                  return ActivePersonCard(data: people[index]);
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
+                      controller.isMoreDataAvailable.value) {
+                    controller.loadMore();
+                  }
+                  return true;
                 },
+                child: Obx(() {
+                  if (controller.isLoading.value && controller.people.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return ListView.builder(
+                    itemCount: controller.people.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index < controller.people.length) {
+                        final user = controller.people[index];
+                        return ActivePersonCard(data: {
+                          'name': user.name,
+                          'country': user.country,
+                          'division': user.division,
+                          'district': user.district,
+                          'gender': user.gender,
+                          'image': user.image,
+                        });
+                      } else {
+                        return controller.isMoreDataAvailable.value
+                            ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                            : const SizedBox();
+                      }
+                    },
+                  );
+                }),
               ),
             ),
+
           ],
         ),
       ),

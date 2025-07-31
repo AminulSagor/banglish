@@ -5,4 +5,11 @@ class FilterController extends GetxController {
   var selectedCountry = 'Bangladesh'.obs;
   var selectedDivision = ''.obs;
   var selectedDistrict = ''.obs;
+
+  void resetFilters() {
+    selectedGender.value = '';
+    selectedCountry.value = 'Bangladesh';
+    selectedDivision.value = '';
+    selectedDistrict.value = '';
+  }
 }
