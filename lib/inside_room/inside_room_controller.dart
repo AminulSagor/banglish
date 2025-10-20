@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
 class InsideRoomController extends GetxController {
-  final isAdmin = true.obs; // Set based on current user's role
+  final isAdmin = false.obs; // Set based on current user's role
   final messages = <String>[].obs;
 
   final isVideoOn = true.obs;

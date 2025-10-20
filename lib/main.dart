@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       designSize: Size(390, 844),
       builder: (context, child) => GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: AppRoutes.login,
+        initialRoute: AppRoutes.roomList,
         getPages: appPages,
       ),
     );

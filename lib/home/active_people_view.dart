@@ -32,6 +32,14 @@ class ActivePeopleView extends StatelessWidget {
         child: Column(
           children: [
             TextField(
+              onChanged: (value) {
+                controller.searchQuery.value = value.trim();
+
+                if (value.trim().isEmpty) {
+                  controller.people.clear();
+                  controller.isMoreDataAvailable.value = false;
+                }
+              },
               decoration: InputDecoration(
                 hintText: 'Search people...',
                 hintStyle: TextStyle(color: Colors.blueGrey.shade400),
@@ -53,17 +61,31 @@ class ActivePeopleView extends StatelessWidget {
 
             Expanded(
               child: NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scrollInfo) {
+                onNotification: (scrollInfo) {
                   if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
                       controller.isMoreDataAvailable.value) {
                     controller.loadMore();
                   }
-                  return true;
+                  return false;
                 },
                 child: Obx(() {
                   if (controller.isLoading.value && controller.people.isEmpty) {
                     return const Center(child: CircularProgressIndicator());
                   }
+
+                  if (!controller.isLoading.value && controller.people.isEmpty) {
+                    return Center(
+                      child: Text(
+                        "No active people found.",
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          color: Colors.blueGrey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }
+
                   return ListView.builder(
                     itemCount: controller.people.length + 1,
                     itemBuilder: (context, index) {
@@ -76,6 +98,7 @@ class ActivePeopleView extends StatelessWidget {
                           'district': user.district,
                           'gender': user.gender,
                           'image': user.image,
+                          'uid': user.uid,
                         });
                       } else {
                         return controller.isMoreDataAvailable.value
@@ -90,7 +113,6 @@ class ActivePeopleView extends StatelessWidget {
                 }),
               ),
             ),
-
           ],
         ),
       ),

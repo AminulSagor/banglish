@@ -78,7 +78,9 @@ class MessageView extends StatelessWidget {
           onTap: () => Get.to(() => SingleMessageView(
             name: chat.name,
             photo: chat.photo,
+            uid: "1", // ✅ Add this line
           )),
+
         );
       },
     );

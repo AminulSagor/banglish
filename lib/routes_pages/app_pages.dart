@@ -33,10 +33,15 @@ final List<GetPage> appPages = [
   ),
   GetPage(
     name: '/single_message',
-    page: () => SingleMessageView(
-      name: Get.arguments['name'],
-      photo: Get.arguments['photo'],
-    ),
+    page: () {
+      final args = Get.arguments as Map<String, dynamic>?;
+
+      return SingleMessageView(
+        name: args?['name'] ?? '',
+        photo: args?['photo'] ?? '',
+        uid: args?['uid'] ?? '', // ✅ Add this if you're using UID for messaging
+      );
+    },
   ),
 
   GetPage(

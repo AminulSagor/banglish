@@ -28,28 +28,33 @@ class FilterBoxWidget extends StatelessWidget {
           children: [
             // Gender
             Expanded(
-              child: DropdownButtonFormField<String>(
-                value: controller.selectedGender.value.isEmpty
-                    ? null
-                    : controller.selectedGender.value,
+              child: Obx(() => DropdownButtonFormField<String>(
+                value: controller.selectedGender.value,
                 decoration: _decoratedField("Gender"),
-                items: ['Male', 'Female', 'Other']
+                items: ['All', 'Male', 'Female', 'Other']
                     .map((g) => DropdownMenuItem(value: g, child: Text(g)))
                     .toList(),
                 onChanged: (value) {
-                  controller.selectedGender.value = value ?? '';
+                  controller.selectedGender.value = value ?? 'All';
                 },
-              ),
+              )),
             ),
+
             SizedBox(width: 8.w),
 
+            // Country
             // Country
             Expanded(
               child: Obx(() => DropdownButtonFormField<String>(
                 value: controller.selectedCountry.value,
                 decoration: _decoratedField("Country"),
-                items: ['Bangladesh', 'USA', 'India','Afghanistan']
-                    .map((c) =>
+                items: [
+                  'All Country',
+                  'Bangladesh',
+                  'USA',
+                  'India',
+                  'Afghanistan'
+                ].map((c) =>
                     DropdownMenuItem(value: c, child: Text(c)))
                     .toList(),
                 onChanged: (value) {
@@ -59,6 +64,7 @@ class FilterBoxWidget extends StatelessWidget {
                 },
               )),
             ),
+
           ],
         ),
 
