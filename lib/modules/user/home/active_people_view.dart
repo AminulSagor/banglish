@@ -101,17 +101,7 @@ class ActivePeopleView extends GetView<ActivePeopleController> {
                     itemBuilder: (context, index) {
                       if (index < controller.people.length) {
                         final user = controller.people[index];
-                        return ActivePersonCard(
-                          data: {
-                            'name': user.name,
-                            'country': user.country,
-                            'division': user.division,
-                            'district': user.district,
-                            'gender': user.gender,
-                            'image': user.photoUrl,
-                            'uid': user.uid,
-                          },
-                        );
+                        return ActivePersonCard(user: user);
                       } else {
                         return controller.isMoreDataAvailable.value
                             ? const Padding(

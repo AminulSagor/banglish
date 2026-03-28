@@ -30,7 +30,7 @@ class AccountViewController extends GetxController {
 
   /// Navigate to change password page
   void goToChangePassword() {
-    Get.toNamed('/change-password');
+    Get.toNamed(AppRoutes.changePassword);
   }
 
   /// Show delete account dialog

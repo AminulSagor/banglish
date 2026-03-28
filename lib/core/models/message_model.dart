@@ -16,20 +16,20 @@ class MessageModel {
     this.isRead = false,
   });
 
-  factory MessageModel.fromMap(Map<String, dynamic> map) {
+  factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
-      id: map['id'] ?? '',
-      senderId: map['senderId'] ?? '',
-      receiverId: map['receiverId'] ?? '',
-      text: map['text'] ?? '',
-      timestamp: map['timestamp'] != null
-          ? DateTime.parse(map['timestamp'].toString())
+      id: json['id'] ?? '',
+      senderId: json['senderId'] ?? '',
+      receiverId: json['receiverId'] ?? '',
+      text: json['text'] ?? '',
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'].toString())
           : DateTime.now(),
-      isRead: map['isRead'] ?? false,
+      isRead: json['isRead'] ?? false,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'senderId': senderId,
@@ -38,5 +38,23 @@ class MessageModel {
       'timestamp': timestamp.toIso8601String(),
       'isRead': isRead,
     };
+  }
+
+  MessageModel copyWith({
+    String? id,
+    String? senderId,
+    String? receiverId,
+    String? text,
+    DateTime? timestamp,
+    bool? isRead,
+  }) {
+    return MessageModel(
+      id: id ?? this.id,
+      senderId: senderId ?? this.senderId,
+      receiverId: receiverId ?? this.receiverId,
+      text: text ?? this.text,
+      timestamp: timestamp ?? this.timestamp,
+      isRead: isRead ?? this.isRead,
+    );
   }
 }

@@ -1,9 +1,12 @@
 import 'package:get/get.dart';
-
+import '../../../core/services/api_error_handler.dart';
 import '../../../core/models/room_model.dart';
-import '../../../core/services/mock_data_service.dart';
+import '../services/user_module_service.dart';
 
 class RoomController extends GetxController {
+  final ApiErrorHandler _apiErrorHandler = Get.find<ApiErrorHandler>();
+  final UserModuleService _userService = Get.find<UserModuleService>();
+
   var rooms = <RoomModel>[].obs;
   var isLoading = false.obs;
 
@@ -15,12 +18,15 @@ class RoomController extends GetxController {
 
   void loadRooms() {
     isLoading.value = true;
-
-    // Simulate loading delay
-    Future.delayed(const Duration(milliseconds: 300), () {
-      rooms.assignAll(MockDataService.mockRooms);
-      isLoading.value = false;
-    });
+    _apiErrorHandler
+        .handle<List<RoomModel>>(
+          () => _userService.getRooms(),
+          defaultErrorCode: 'ROOM_LOAD_FAILED',
+        )
+        .then((ApiResponse<List<RoomModel>> response) {
+          rooms.assignAll(response.data ?? <RoomModel>[]);
+          isLoading.value = false;
+        });
   }
 
   void createRoom(String name, String topic) {

@@ -1,11 +1,14 @@
 import 'package:get/get.dart';
 
+import '../../../core/services/api_error_handler.dart';
 import '../../../core/models/user_model.dart';
-import '../../../core/services/mock_data_service.dart';
+import '../services/user_module_service.dart';
 import '../../shared/widgets/filter_controller.dart';
 
 class ActivePeopleController extends GetxController {
   final FilterController _filter = Get.find<FilterController>();
+  final ApiErrorHandler _apiErrorHandler = Get.find<ApiErrorHandler>();
+  final UserModuleService _userService = Get.find<UserModuleService>();
 
   var people = <UserModel>[].obs;
   var isLoading = false.obs;
@@ -50,29 +53,54 @@ class ActivePeopleController extends GetxController {
 
     isLoading.value = true;
 
-    // Simulate loading delay
-    Future.delayed(const Duration(milliseconds: 300), () {
-      final filteredUsers = MockDataService.getFilteredUsers(
-        searchText: searchQuery.value,
-        gender: _filter.selectedGender.value == 'All'
-            ? null
-            : _filter.selectedGender.value,
-        country: _filter.selectedCountry.value == 'All Country'
-            ? null
-            : _filter.selectedCountry.value,
-        division: _filter.selectedDivision.value.isEmpty
-            ? null
-            : _filter.selectedDivision.value,
-        district: _filter.selectedDistrict.value.isEmpty
-            ? null
-            : _filter.selectedDistrict.value,
-        excludeUid: currentUid,
-      );
+    _apiErrorHandler
+        .handle<List<UserModel>>(
+          () => _userService.getActivePeople(),
+          defaultErrorCode: 'ACTIVE_PEOPLE_LOAD_FAILED',
+        )
+        .then((ApiResponse<List<UserModel>> response) {
+          final allUsers = response.data ?? <UserModel>[];
+          final filteredUsers = allUsers.where((user) {
+            if (user.uid == currentUid) return false;
 
-      people.assignAll(filteredUsers);
-      isMoreDataAvailable.value = false; // Mock data doesn't have pagination
-      isLoading.value = false;
-    });
+            if (searchQuery.value.trim().isNotEmpty &&
+                !user.name.toLowerCase().contains(
+                  searchQuery.value.trim().toLowerCase(),
+                )) {
+              return false;
+            }
+
+            if (_filter.selectedGender.value != 'All' &&
+                user.gender.toLowerCase() !=
+                    _filter.selectedGender.value.toLowerCase()) {
+              return false;
+            }
+
+            if (_filter.selectedCountry.value != 'All Country' &&
+                user.country.toLowerCase() !=
+                    _filter.selectedCountry.value.toLowerCase()) {
+              return false;
+            }
+
+            if (_filter.selectedDivision.value.isNotEmpty &&
+                user.division.toLowerCase() !=
+                    _filter.selectedDivision.value.toLowerCase()) {
+              return false;
+            }
+
+            if (_filter.selectedDistrict.value.isNotEmpty &&
+                user.district.toLowerCase() !=
+                    _filter.selectedDistrict.value.toLowerCase()) {
+              return false;
+            }
+
+            return true;
+          }).toList();
+
+          people.assignAll(filteredUsers);
+          isMoreDataAvailable.value = false;
+          isLoading.value = false;
+        });
   }
 
   void loadMore() {

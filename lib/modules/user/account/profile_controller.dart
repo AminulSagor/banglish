@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../core/models/user_model.dart';
 import '../../../core/services/mock_data_service.dart';
+import '../../../routes/app_routes.dart';
 
 class ProfileController extends GetxController {
   final currentUser = Rxn<UserModel>();
@@ -92,15 +93,13 @@ class ProfileController extends GetxController {
 
     // Simulate API call
     Future.delayed(const Duration(milliseconds: 500), () {
-      currentUser.value = UserModel(
-        uid: currentUser.value!.uid,
+      currentUser.value = currentUser.value!.copyWith(
         name: name,
         email: emailController.text.trim(),
         country: countryController.text.trim(),
         division: divisionController.text.trim(),
         district: districtController.text.trim(),
         gender: selectedGender.value,
-        photoUrl: currentUser.value!.photoUrl,
       );
 
       isEditing.value = false;
@@ -125,15 +124,12 @@ class ProfileController extends GetxController {
     String? district,
   }) {
     if (currentUser.value != null) {
-      currentUser.value = UserModel(
-        uid: currentUser.value!.uid,
-        name: name ?? currentUser.value!.name,
-        email: email ?? currentUser.value!.email,
-        country: country ?? currentUser.value!.country,
-        division: division ?? currentUser.value!.division,
-        district: district ?? currentUser.value!.district,
-        gender: currentUser.value!.gender,
-        photoUrl: currentUser.value!.photoUrl,
+      currentUser.value = currentUser.value!.copyWith(
+        name: name,
+        email: email,
+        country: country,
+        division: division,
+        district: district,
       );
 
       isEditing.value = false;
@@ -152,11 +148,11 @@ class ProfileController extends GetxController {
   }
 
   void logout() {
-    Get.offAllNamed('/login');
+    Get.offAllNamed(AppRoutes.login);
     Get.snackbar('Logged Out', 'You have been logged out');
   }
 
   void changePassword() {
-    Get.toNamed('/change-password');
+    Get.toNamed(AppRoutes.changePassword);
   }
 }

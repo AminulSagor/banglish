@@ -26,27 +26,27 @@ class UserModel {
     this.lastLogin,
   });
 
-  factory UserModel.fromMap(Map<String, dynamic> map, {required String uid}) {
+  factory UserModel.fromJson(Map<String, dynamic> json, {required String uid}) {
     return UserModel(
       uid: uid,
-      name: map['name'] ?? '',
-      email: map['email'] ?? '',
-      country: map['country'] ?? '',
-      division: map['division'] ?? '',
-      district: map['district'] ?? '',
-      gender: map['gender'] ?? '',
-      photoUrl: map['photoUrl'] ?? '',
-      isVerified: map['isVerified'] ?? false,
-      createdAt: map['createdAt'] != null
-          ? DateTime.tryParse(map['createdAt'].toString())
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      country: json['country'] ?? '',
+      division: json['division'] ?? '',
+      district: json['district'] ?? '',
+      gender: json['gender'] ?? '',
+      photoUrl: json['photoUrl'] ?? '',
+      isVerified: json['isVerified'] ?? false,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString())
           : null,
-      lastLogin: map['lastLogin'] != null
-          ? DateTime.tryParse(map['lastLogin'].toString())
+      lastLogin: json['lastLogin'] != null
+          ? DateTime.tryParse(json['lastLogin'].toString())
           : null,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'uid': uid,
       'name': name,

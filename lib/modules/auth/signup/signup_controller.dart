@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/services/api_error_handler.dart';
 import '../../../core/services/mock_data_service.dart';
 import '../../../routes/app_routes.dart';
+import '../models/auth_models.dart';
+import '../services/auth_module_service.dart';
 
 class SignupController extends GetxController {
+  final AuthModuleService _authService = Get.find<AuthModuleService>();
+  final ApiErrorHandler _apiErrorHandler = Get.find<ApiErrorHandler>();
+  final createdUser = Rxn<AuthUserUiModel>();
+
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -102,10 +109,24 @@ class SignupController extends GetxController {
 
     isLoading.value = true;
 
-    try {
-      // TODO: Implement actual signup logic with backend
-      await Future.delayed(const Duration(seconds: 1));
+    final payload = SignupPayloadModel(
+      name: name,
+      email: email,
+      password: password,
+      country: selectedCountry.value,
+      division: selectedDivision.value,
+      district: selectedDistrict.value,
+      gender: selectedGender.value,
+    );
 
+    final ApiResponse<AuthUserUiModel?> signupResponse = await _apiErrorHandler
+        .handle(
+          () => _authService.signup(payload),
+          defaultErrorCode: 'SIGNUP_FAILED',
+        );
+
+    if (signupResponse.success && signupResponse.data != null) {
+      createdUser.value = signupResponse.data;
       Get.snackbar(
         'Success',
         'Account created! Please verify your email.',
@@ -115,27 +136,13 @@ class SignupController extends GetxController {
         margin: const EdgeInsets.all(10),
       );
 
-      // Navigate to OTP verification
       Get.toNamed(
         AppRoutes.otp,
-        arguments: {
-          'email': email,
-          'otp': '12345', // Mock OTP for testing
-          'isForgetPass': false,
-        },
+        arguments: {'email': email, 'otp': '12345', 'isForgetPass': false},
       );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Signup failed: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(10),
-      );
-    } finally {
-      isLoading.value = false;
     }
+
+    isLoading.value = false;
   }
 
   void goToLogin() {

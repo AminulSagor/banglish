@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../core/models/room_model.dart';
 import '../../../core/theme/app_colors.dart';
 
 class RoomCardWidget extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final RoomModel room;
   final VoidCallback? onJoin;
 
-  const RoomCardWidget({super.key, required this.data, this.onJoin});
+  const RoomCardWidget({super.key, required this.room, this.onJoin});
 
   @override
   Widget build(BuildContext context) {
-    final participants = data['participants'] as List<String>? ?? [];
+    final participants = room.participants;
 
     return Card(
       margin: EdgeInsets.only(bottom: 12.h),
@@ -25,7 +26,7 @@ class RoomCardWidget extends StatelessWidget {
           children: [
             // Room name
             Text(
-              data['name'] ?? '',
+              room.name,
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
@@ -36,7 +37,7 @@ class RoomCardWidget extends StatelessWidget {
 
             // Topic
             Text(
-              data['topic'] ?? '',
+              room.topic,
               style: TextStyle(fontSize: 14.sp, color: AppColors.blueGrey600),
             ),
             SizedBox(height: 8.h),
@@ -75,7 +76,7 @@ class RoomCardWidget extends StatelessWidget {
 
                 // Created time
                 Text(
-                  data['createdAt'] ?? '',
+                  room.createdAt,
                   style: TextStyle(fontSize: 12.sp, color: AppColors.grey600),
                 ),
                 SizedBox(width: 10.w),

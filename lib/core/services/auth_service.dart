@@ -59,7 +59,7 @@ class AuthService {
       FacebookAuth.instance.logOut(),
     ]);
   }
-
+  
   /// Check if user is signed in
   bool get isSignedIn => currentUser != null;
 }

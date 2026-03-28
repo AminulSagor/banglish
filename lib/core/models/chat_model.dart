@@ -18,19 +18,19 @@ class ChatModel {
     this.unreadCount = 0,
   });
 
-  factory ChatModel.fromMap(Map<String, dynamic> map) {
+  factory ChatModel.fromJson(Map<String, dynamic> json) {
     return ChatModel(
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
-      photo: map['photo'] ?? '',
-      lastMessage: map['lastMessage'] ?? '',
-      time: map['time'] ?? '',
-      recipientUid: map['recipientUid'] ?? '',
-      unreadCount: map['unreadCount'] ?? 0,
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      photo: json['photo'] ?? '',
+      lastMessage: json['lastMessage'] ?? '',
+      time: json['time'] ?? '',
+      recipientUid: json['recipientUid'] ?? '',
+      unreadCount: json['unreadCount'] ?? 0,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
@@ -40,5 +40,25 @@ class ChatModel {
       'recipientUid': recipientUid,
       'unreadCount': unreadCount,
     };
+  }
+
+  ChatModel copyWith({
+    String? id,
+    String? name,
+    String? photo,
+    String? lastMessage,
+    String? time,
+    String? recipientUid,
+    int? unreadCount,
+  }) {
+    return ChatModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      photo: photo ?? this.photo,
+      lastMessage: lastMessage ?? this.lastMessage,
+      time: time ?? this.time,
+      recipientUid: recipientUid ?? this.recipientUid,
+      unreadCount: unreadCount ?? this.unreadCount,
+    );
   }
 }

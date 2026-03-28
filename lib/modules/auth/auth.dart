@@ -1,4 +1,6 @@
 /// Barrel file for auth module
+export 'models/auth_models.dart';
+export 'services/services.dart';
 export 'login/login_controller.dart';
 export 'login/login_view.dart';
 export 'signup/signup_controller.dart';

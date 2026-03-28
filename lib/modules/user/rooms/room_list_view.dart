@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../shared/widgets/add_group_modal.dart';
 import '../../shared/widgets/room_card_widget.dart';
 import 'room_controller.dart';
 import 'inside_room_view.dart';
@@ -65,12 +64,7 @@ class RoomListView extends GetView<RoomController> {
             itemBuilder: (context, index) {
               final room = controller.rooms[index];
               return RoomCardWidget(
-                data: {
-                  'name': room.name,
-                  'topic': room.topic,
-                  'participants': room.participants,
-                  'createdAt': room.createdAt,
-                },
+                room: room,
                 onJoin: () => Get.to(() => InsideRoomView(roomId: room.id)),
               );
             },
@@ -91,7 +85,6 @@ class _DialogField extends StatelessWidget {
   final String hint;
   final TextEditingController controller;
   final bool autofocus;
-  final TextInputAction textInputAction;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
@@ -100,7 +93,6 @@ class _DialogField extends StatelessWidget {
     required this.hint,
     required this.controller,
     this.autofocus = false,
-    this.textInputAction = TextInputAction.next,
     this.onChanged,
     this.onSubmitted,
   });
@@ -122,7 +114,7 @@ class _DialogField extends StatelessWidget {
         TextField(
           controller: controller,
           autofocus: autofocus,
-          textInputAction: textInputAction,
+          textInputAction: TextInputAction.next,
           onChanged: onChanged,
           onSubmitted: onSubmitted,
           decoration: InputDecoration(
@@ -242,6 +234,7 @@ class _AddRoomDialogState extends State<AddRoomDialog> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
+                    //onPressed: () => Get.back(),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: AppColors.grey300),
                       padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -265,9 +258,7 @@ class _AddRoomDialogState extends State<AddRoomDialog> {
                     onPressed: _canSubmit ? _submit : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      disabledBackgroundColor: AppColors.primary.withOpacity(
-                        0.35,
-                      ),
+                      disabledBackgroundColor: AppColors.primary.withAlpha(89),
                       padding: EdgeInsets.symmetric(vertical: 12.h),
                       elevation: 0,
                       shape: RoundedRectangleBorder(

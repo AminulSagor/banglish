@@ -1,14 +1,17 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-
-import '../../../core/services/auth_service.dart';
+import '../../../core/services/api_error_handler.dart';
+import '../models/auth_models.dart';
+import '../services/auth_module_service.dart';
 import '../../../routes/app_routes.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  final AuthService _authService = AuthService();
+  final AuthModuleService _authService = Get.find<AuthModuleService>();
+  final ApiErrorHandler _apiErrorHandler = Get.find<ApiErrorHandler>();
+  final currentUser = Rxn<AuthUserUiModel>();
 
   final isLoading = false.obs;
   final isGoogleLoading = false.obs;
@@ -37,11 +40,15 @@ class LoginController extends GetxController {
 
     isLoading.value = true;
 
-    try {
-      // TODO: Implement actual login logic with backend
-      // For now, simulate a login delay
-      await Future.delayed(const Duration(seconds: 1));
+    final payload = LoginPayloadModel(email: email, password: password);
+    final ApiResponse<AuthUserUiModel?> response = await _apiErrorHandler
+        .handle(
+          () => _authService.login(payload),
+          defaultErrorCode: 'LOGIN_FAILED',
+        );
 
+    if (response.success && response.data != null) {
+      currentUser.value = response.data;
       Get.snackbar(
         'Success',
         'Login successful!',
@@ -50,78 +57,56 @@ class LoginController extends GetxController {
         snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(10),
       );
-
       Get.offAllNamed(AppRoutes.bottomNav);
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Login failed: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(10),
-      );
-    } finally {
-      isLoading.value = false;
     }
+
+    isLoading.value = false;
   }
 
   void loginWithGoogle() async {
     isGoogleLoading.value = true;
-    try {
-      final userCredential = await _authService.signInWithGoogle();
-      if (userCredential != null) {
-        Get.snackbar(
-          'Success',
-          'Google login successful!',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(10),
-        );
-        Get.offAllNamed(AppRoutes.bottomNav);
-      }
-    } catch (e) {
+    final response = await _apiErrorHandler.handle<AuthUserUiModel?>(
+      () => _authService.signInWithGoogle(),
+      defaultErrorCode: 'GOOGLE_LOGIN_FAILED',
+    );
+
+    if (response.success && response.data != null) {
+      currentUser.value = response.data;
       Get.snackbar(
-        'Error',
-        'Google login failed: $e',
-        backgroundColor: Colors.red,
+        'Success',
+        'Google login successful!',
+        backgroundColor: Colors.green,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(10),
       );
-    } finally {
-      isGoogleLoading.value = false;
+      Get.offAllNamed(AppRoutes.bottomNav);
     }
+
+    isGoogleLoading.value = false;
   }
 
   void loginWithFacebook() async {
     isFacebookLoading.value = true;
-    try {
-      final userCredential = await _authService.signInWithFacebook();
-      if (userCredential != null) {
-        Get.snackbar(
-          'Success',
-          'Facebook login successful!',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(10),
-        );
-        Get.offAllNamed(AppRoutes.bottomNav);
-      }
-    } catch (e) {
+    final response = await _apiErrorHandler.handle<AuthUserUiModel?>(
+      () => _authService.signInWithFacebook(),
+      defaultErrorCode: 'FACEBOOK_LOGIN_FAILED',
+    );
+
+    if (response.success && response.data != null) {
+      currentUser.value = response.data;
       Get.snackbar(
-        'Error',
-        'Facebook login failed: $e',
-        backgroundColor: Colors.red,
+        'Success',
+        'Facebook login successful!',
+        backgroundColor: Colors.green,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(10),
       );
-    } finally {
-      isFacebookLoading.value = false;
+      Get.offAllNamed(AppRoutes.bottomNav);
     }
+
+    isFacebookLoading.value = false;
   }
 
   void goToSignUp() {

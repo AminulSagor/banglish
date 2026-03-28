@@ -18,19 +18,19 @@ class RoomModel {
     this.isActive = true,
   });
 
-  factory RoomModel.fromMap(Map<String, dynamic> map) {
+  factory RoomModel.fromJson(Map<String, dynamic> json) {
     return RoomModel(
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
-      topic: map['topic'] ?? '',
-      participants: List<String>.from(map['participants'] ?? []),
-      createdAt: map['createdAt'] ?? '',
-      creatorUid: map['creatorUid'] ?? '',
-      isActive: map['isActive'] ?? true,
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      topic: json['topic'] ?? '',
+      participants: List<String>.from(json['participants'] ?? []),
+      createdAt: json['createdAt'] ?? '',
+      creatorUid: json['creatorUid'] ?? '',
+      isActive: json['isActive'] ?? true,
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
@@ -40,5 +40,25 @@ class RoomModel {
       'creatorUid': creatorUid,
       'isActive': isActive,
     };
+  }
+
+  RoomModel copyWith({
+    String? id,
+    String? name,
+    String? topic,
+    List<String>? participants,
+    String? createdAt,
+    String? creatorUid,
+    bool? isActive,
+  }) {
+    return RoomModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      topic: topic ?? this.topic,
+      participants: participants ?? this.participants,
+      createdAt: createdAt ?? this.createdAt,
+      creatorUid: creatorUid ?? this.creatorUid,
+      isActive: isActive ?? this.isActive,
+    );
   }
 }

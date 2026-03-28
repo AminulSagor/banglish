@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:spoken/modules/user/user.dart';
 
 import '../../../core/theme/app_colors.dart';
-import 'profile_controller.dart';
 import 'profile_view.dart';
 
 class AccountView extends GetView<AccountViewController> {

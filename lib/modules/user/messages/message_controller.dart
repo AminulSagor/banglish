@@ -1,9 +1,12 @@
 import 'package:get/get.dart';
-
+import '../../../core/services/api_error_handler.dart';
 import '../../../core/models/chat_model.dart';
-import '../../../core/services/mock_data_service.dart';
+import '../services/user_module_service.dart';
 
 class MessageController extends GetxController {
+  final ApiErrorHandler _apiErrorHandler = Get.find<ApiErrorHandler>();
+  final UserModuleService _userService = Get.find<UserModuleService>();
+
   var chats = <ChatModel>[].obs;
   var isLoading = false.obs;
   var searchQuery = ''.obs;
@@ -16,12 +19,15 @@ class MessageController extends GetxController {
 
   void loadChats() {
     isLoading.value = true;
-
-    // Simulate loading delay
-    Future.delayed(const Duration(milliseconds: 300), () {
-      chats.assignAll(MockDataService.mockChats);
-      isLoading.value = false;
-    });
+    _apiErrorHandler
+        .handle<List<ChatModel>>(
+          () => _userService.getChats(),
+          defaultErrorCode: 'CHAT_LOAD_FAILED',
+        )
+        .then((ApiResponse<List<ChatModel>> response) {
+          chats.assignAll(response.data ?? <ChatModel>[]);
+          isLoading.value = false;
+        });
   }
 
   List<ChatModel> get filteredChats {

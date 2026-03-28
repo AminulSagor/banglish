@@ -18,6 +18,7 @@ abstract class AppPages {
       name: AppRoutes.login,
       page: () => const LoginView(),
       binding: BindingsBuilder(() {
+        Get.lazyPut(() => AuthModuleService(), fenix: true);
         Get.lazyPut(() => LoginController());
       }),
     ),
@@ -25,6 +26,7 @@ abstract class AppPages {
       name: AppRoutes.signup,
       page: () => const SignupView(),
       binding: BindingsBuilder(() {
+        Get.lazyPut(() => AuthModuleService(), fenix: true);
         Get.lazyPut(() => SignupController());
       }),
     ),
@@ -32,16 +34,17 @@ abstract class AppPages {
       name: AppRoutes.forgotPassword,
       page: () => const ForgotPasswordView(),
       binding: BindingsBuilder(() {
+        Get.lazyPut(() => AuthModuleService(), fenix: true);
         Get.lazyPut(() => ForgotPasswordController());
       }),
     ),
-    // GetPage(
-    //   name: AppRoutes.otp,
-    //   page: () => OtpView(),
-    //   binding: BindingsBuilder(() {
-    //     Get.lazyPut(() => OtpController());
-    //   }),
-    // ),
+    GetPage(
+      name: AppRoutes.otp,
+      page: () => const OTPView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => OTPController());
+      }),
+    ),
     GetPage(
       name: AppRoutes.changePassword,
       page: () => const ChangePasswordView(),
@@ -55,6 +58,7 @@ abstract class AppPages {
       name: AppRoutes.bottomNav,
       page: () => const BottomNavView(),
       binding: BindingsBuilder(() {
+        Get.lazyPut(() => UserModuleService(), fenix: true);
         Get.lazyPut(() => BottomNavController());
         Get.lazyPut(() => FilterController());
         Get.lazyPut(() => ActivePeopleController());
@@ -70,6 +74,7 @@ abstract class AppPages {
       name: AppRoutes.home,
       page: () => const ActivePeopleView(),
       binding: BindingsBuilder(() {
+        Get.lazyPut(() => UserModuleService(), fenix: true);
         Get.lazyPut(() => FilterController());
         Get.lazyPut(() => ActivePeopleController());
       }),
@@ -78,6 +83,7 @@ abstract class AppPages {
       name: AppRoutes.messages,
       page: () => MessageListView(),
       binding: BindingsBuilder(() {
+        Get.lazyPut(() => UserModuleService(), fenix: true);
         Get.lazyPut(() => MessageController());
       }),
     ),
@@ -96,6 +102,7 @@ abstract class AppPages {
       name: AppRoutes.rooms,
       page: () => const RoomListView(),
       binding: BindingsBuilder(() {
+        Get.lazyPut(() => UserModuleService(), fenix: true);
         Get.lazyPut(() => RoomController());
       }),
     ),
