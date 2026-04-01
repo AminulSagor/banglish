@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../core/models/user_model.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../user/messages/single_message_view.dart';
+import '../../messages/single_message_view.dart';
 
 class ActivePersonCard extends StatelessWidget {
   final UserModel user;

@@ -10,13 +10,14 @@ abstract class AppRoutes {
 
   // Main routes
   static const String home = '/home';
-  static const String bottomNav = '/bottom-nav';
+  static const String mainNavigation = '/main-navigation';
 
   // User routes
   static const String profile = '/profile';
   static const String messages = '/messages';
   static const String singleMessage = '/single-message';
   static const String rooms = '/rooms';
+  static const String myRooms = '/my-rooms';
   static const String insideRoom = '/inside-room';
 
   // Policy routes

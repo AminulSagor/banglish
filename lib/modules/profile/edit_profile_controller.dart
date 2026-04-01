@@ -5,7 +5,7 @@ import '../../../core/models/user_model.dart';
 import '../../../core/services/mock_data_service.dart';
 import '../../../routes/app_routes.dart';
 
-class ProfileController extends GetxController {
+class EditProfileController extends GetxController {
   final currentUser = Rxn<UserModel>();
   final isLoading = false.obs;
   final isEditing = false.obs;

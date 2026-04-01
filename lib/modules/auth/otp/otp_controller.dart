@@ -106,7 +106,7 @@ class OTPController extends GetxController {
             arguments: {'email': email.value},
           );
         } else {
-          Get.offAllNamed(AppRoutes.bottomNav);
+          Get.offAllNamed(AppRoutes.mainNavigation);
         }
       } else {
         Get.snackbar(

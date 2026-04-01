@@ -30,7 +30,7 @@ class ForgotPasswordController extends GetxController {
     isLoading.value = true;
 
     final payload = ForgotPasswordPayloadModel(email: email);
-    final ApiResponse<OtpUiModel> response = await _apiErrorHandler.handle(
+    final ApiResponse<OtpUiModel> response = await _apiErrorHandler.call(
       () => _authService.requestPasswordReset(payload),
       defaultErrorCode: 'OTP_SEND_FAILED',
     );

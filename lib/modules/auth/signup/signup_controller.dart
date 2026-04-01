@@ -13,41 +13,55 @@ class SignupController extends GetxController {
   final createdUser = Rxn<AuthUserUiModel>();
 
   final nameController = TextEditingController();
+  final usernameController = TextEditingController();
+  final phoneController = TextEditingController();
   final emailController = TextEditingController();
+  final thanaController = TextEditingController();
+  final districtController = TextEditingController();
   final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
 
   var selectedCountry = ''.obs;
-  var selectedDivision = ''.obs;
-  var selectedDistrict = ''.obs;
+  var signupMethod = 'phone'.obs;
   var selectedGender = 'Male'.obs;
 
   final isLoading = false.obs;
+  final isGoogleLoading = false.obs;
+  final isFacebookLoading = false.obs;
   final obscurePassword = true.obs;
-  final obscureConfirmPassword = true.obs;
 
   List<String> get countryList => MockDataService.countries;
-  List<String> get divisionList => MockDataService.bangladeshDivisions;
-  List<String> get districtList {
-    if (selectedDivision.value.isEmpty) return [];
-    return MockDataService.bangladeshDistricts[selectedDivision.value] ?? [];
+
+  bool get isPhoneSignup => signupMethod.value == 'phone';
+
+  @override
+  void onInit() {
+    super.onInit();
+    selectedCountry.value = 'Bangladesh';
+  }
+
+  void setSignupMethod(String method) {
+    signupMethod.value = method;
   }
 
   void togglePasswordVisibility() {
     obscurePassword.toggle();
   }
 
-  void toggleConfirmPasswordVisibility() {
-    obscureConfirmPassword.toggle();
+  bool _isValidPhone(String value) {
+    final normalized = value.replaceAll(RegExp(r'\s+'), '');
+    return RegExp(r'^\+?[0-9]{7,15}$').hasMatch(normalized);
   }
 
   void signup() async {
     final name = nameController.text.trim();
+    final username = usernameController.text.trim();
+    final phone = phoneController.text.trim();
     final email = emailController.text.trim();
+    final thana = thanaController.text.trim();
+    final district = districtController.text.trim();
     final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+    if (name.isEmpty || username.isEmpty || password.isEmpty) {
       Get.snackbar(
         'Error',
         'Please fill in all required fields',
@@ -59,7 +73,19 @@ class SignupController extends GetxController {
       return;
     }
 
-    if (!GetUtils.isEmail(email)) {
+    if (isPhoneSignup && !_isValidPhone(phone)) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid phone number',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(10),
+      );
+      return;
+    }
+
+    if (!isPhoneSignup && !GetUtils.isEmail(email)) {
       Get.snackbar(
         'Error',
         'Please enter a valid email address',
@@ -71,10 +97,10 @@ class SignupController extends GetxController {
       return;
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       Get.snackbar(
         'Error',
-        'Password must be at least 6 characters',
+        'Password must be at least 8 characters',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -83,22 +109,10 @@ class SignupController extends GetxController {
       return;
     }
 
-    if (password != confirmPassword) {
+    if (selectedCountry.value.isEmpty || thana.isEmpty || district.isEmpty) {
       Get.snackbar(
         'Error',
-        'Passwords do not match',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        margin: const EdgeInsets.all(10),
-      );
-      return;
-    }
-
-    if (selectedCountry.value.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please select a country',
+        'Please complete country, thana and district',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -110,17 +124,21 @@ class SignupController extends GetxController {
     isLoading.value = true;
 
     final payload = SignupPayloadModel(
+      signupMethod: signupMethod.value,
       name: name,
-      email: email,
+      username: username,
+      email: isPhoneSignup ? '' : email,
+      phone: isPhoneSignup ? phone : '',
       password: password,
       country: selectedCountry.value,
-      division: selectedDivision.value,
-      district: selectedDistrict.value,
+      thana: thana,
+      division: thana,
+      district: district,
       gender: selectedGender.value,
     );
 
     final ApiResponse<AuthUserUiModel?> signupResponse = await _apiErrorHandler
-        .handle(
+        .call(
           () => _authService.signup(payload),
           defaultErrorCode: 'SIGNUP_FAILED',
         );
@@ -129,7 +147,7 @@ class SignupController extends GetxController {
       createdUser.value = signupResponse.data;
       Get.snackbar(
         'Success',
-        'Account created! Please verify your email.',
+        'Account created successfully!',
         backgroundColor: Colors.green,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -138,11 +156,61 @@ class SignupController extends GetxController {
 
       Get.toNamed(
         AppRoutes.otp,
-        arguments: {'email': email, 'otp': '12345', 'isForgetPass': false},
+        arguments: {
+          'email': isPhoneSignup ? phone : email,
+          'otp': '12345',
+          'isForgetPass': false,
+        },
       );
     }
 
     isLoading.value = false;
+  }
+
+  void signupWithGoogle() async {
+    isGoogleLoading.value = true;
+    final response = await _apiErrorHandler.call<AuthUserUiModel?>(
+      () => _authService.signInWithGoogle(),
+      defaultErrorCode: 'GOOGLE_SIGNUP_FAILED',
+    );
+
+    if (response.success && response.data != null) {
+      createdUser.value = response.data;
+      Get.snackbar(
+        'Success',
+        'Google signup successful!',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(10),
+      );
+      Get.offAllNamed(AppRoutes.mainNavigation);
+    }
+
+    isGoogleLoading.value = false;
+  }
+
+  void signupWithFacebook() async {
+    isFacebookLoading.value = true;
+    final response = await _apiErrorHandler.call<AuthUserUiModel?>(
+      () => _authService.signInWithFacebook(),
+      defaultErrorCode: 'FACEBOOK_SIGNUP_FAILED',
+    );
+
+    if (response.success && response.data != null) {
+      createdUser.value = response.data;
+      Get.snackbar(
+        'Success',
+        'Facebook signup successful!',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(10),
+      );
+      Get.offAllNamed(AppRoutes.mainNavigation);
+    }
+
+    isFacebookLoading.value = false;
   }
 
   void goToLogin() {
@@ -152,9 +220,12 @@ class SignupController extends GetxController {
   @override
   void onClose() {
     nameController.dispose();
+    usernameController.dispose();
+    phoneController.dispose();
     emailController.dispose();
+    thanaController.dispose();
+    districtController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose();
     super.onClose();
   }
 }

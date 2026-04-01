@@ -67,11 +67,11 @@ class _CustomTextFieldState extends State<CustomTextField>
     _focusNode.addListener(_handleFocusChange);
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 150),
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
   }
@@ -105,21 +105,21 @@ class _CustomTextFieldState extends State<CustomTextField>
         return Transform.scale(
           scale: _scaleAnimation.value,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 160),
             curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.r),
+              borderRadius: BorderRadius.circular(8.r),
               boxShadow: [
                 if (widget.enabled)
                   BoxShadow(
                     color: _isFocused
-                        ? AppColors.primary.withValues(alpha: 0.15)
+                        ? AppColors.primary.withValues(alpha: 0.1)
                         : _hasError
                         ? AppColors.error.withValues(alpha: 0.1)
-                        : AppColors.blueGrey200.withValues(alpha: 0.5),
-                    blurRadius: _isFocused ? 12 : 6,
-                    offset: const Offset(0, 3),
-                    spreadRadius: _isFocused ? 1 : 0,
+                        : AppColors.grey100.withValues(alpha: 0.6),
+                    blurRadius: _isFocused ? 10 : 4,
+                    offset: const Offset(0, 2),
+                    spreadRadius: 0,
                   ),
               ],
             ),
@@ -154,7 +154,7 @@ class _CustomTextFieldState extends State<CustomTextField>
         cursorRadius: const Radius.circular(2),
         style: TextStyle(
           color: widget.enabled ? AppColors.blueGrey800 : AppColors.blueGrey400,
-          fontSize: 15.sp,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.2,
         ),
@@ -203,22 +203,22 @@ class _CustomTextFieldState extends State<CustomTextField>
           fillColor: widget.enabled ? AppColors.white : AppColors.grey50,
           contentPadding:
               widget.contentPadding ??
-              EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+              EdgeInsets.symmetric(horizontal: 14.w, vertical: 11.h),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
           floatingLabelStyle: TextStyle(
             color: _hasError ? AppColors.error : AppColors.primary,
-            fontSize: 14.sp,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
           ),
           labelStyle: TextStyle(
-            color: AppColors.grey500,
-            fontSize: 15.sp,
+            color: AppColors.grey600,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w500,
           ),
           hintStyle: TextStyle(
-            color: AppColors.grey300,
-            fontSize: 15.sp,
+            color: AppColors.grey400,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w400,
           ),
           errorStyle: TextStyle(
@@ -228,28 +228,28 @@ class _CustomTextFieldState extends State<CustomTextField>
             height: 1.2,
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide(color: AppColors.grey200, width: 1.5),
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(color: AppColors.border, width: 1),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide(color: AppColors.grey200, width: 1.5),
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(color: AppColors.border, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide(color: AppColors.primary, width: 2),
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.3),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide(color: AppColors.error, width: 1.5),
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(color: AppColors.error, width: 1),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide(color: AppColors.error, width: 2),
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(color: AppColors.error, width: 1.3),
           ),
           disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide(color: AppColors.grey100, width: 1.5),
+            borderRadius: BorderRadius.circular(8.r),
+            borderSide: const BorderSide(color: AppColors.grey100, width: 1),
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 
 /// Custom button widget with loading state
 class CustomButton extends StatelessWidget {
@@ -11,8 +12,13 @@ class CustomButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? textColor;
   final double? width;
+  final double? height;
   final EdgeInsetsGeometry? padding;
   final Widget? icon;
+  final bool useGradient;
+  final bool isGhost;
+  final bool isSocial;
+  final BorderRadius? borderRadius;
 
   const CustomButton({
     super.key,
@@ -23,55 +29,108 @@ class CustomButton extends StatelessWidget {
     this.backgroundColor,
     this.textColor,
     this.width,
+    this.height,
     this.padding,
     this.icon,
+    this.useGradient = true,
+    this.isGhost = false,
+    this.isSocial = false,
+    this.borderRadius,
   });
 
   @override
   Widget build(BuildContext context) {
-    final buttonWidget = isOutlined
-        ? OutlinedButton(
-            onPressed: isLoading ? null : onPressed,
-            style: OutlinedButton.styleFrom(
-              padding: padding ?? EdgeInsets.symmetric(vertical: 14.h),
-              side: BorderSide(
-                color: backgroundColor ?? AppColors.primary,
-                width: 1.5,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-            ),
-            child: _buildChild(),
-          )
-        : ElevatedButton(
-            onPressed: isLoading ? null : onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: backgroundColor ?? AppColors.primary,
-              padding: padding ?? EdgeInsets.symmetric(vertical: 14.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-            ),
-            child: _buildChild(),
-          );
+    final radius = borderRadius ?? BorderRadius.circular(999.r);
+    final child = _buildChild();
 
-    return SizedBox(width: width ?? double.infinity, child: buttonWidget);
+    final Widget buttonWidget;
+    if (isOutlined || isGhost || isSocial) {
+      buttonWidget = OutlinedButton(
+        onPressed: isLoading ? null : onPressed,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(
+            color: isGhost
+                ? Colors.transparent
+                : (backgroundColor ?? AppColors.border),
+            width: 1,
+          ),
+          backgroundColor: isGhost
+              ? Colors.transparent
+              : (isSocial ? AppColors.white : AppColors.softSurface),
+          minimumSize: Size(width ?? double.infinity, height ?? 40.h),
+          padding:
+              padding ?? EdgeInsets.symmetric(vertical: 10.h, horizontal: 14.w),
+          shape: RoundedRectangleBorder(borderRadius: radius),
+          elevation: 0,
+          shadowColor: Colors.transparent,
+        ),
+        child: child,
+      );
+    } else {
+      buttonWidget = ElevatedButton(
+        onPressed: isLoading ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: useGradient
+              ? Colors.transparent
+              : (backgroundColor ?? AppColors.primary),
+          foregroundColor: AppColors.white,
+          minimumSize: Size(width ?? double.infinity, height ?? 40.h),
+          padding:
+              padding ?? EdgeInsets.symmetric(vertical: 10.h, horizontal: 14.w),
+          shape: RoundedRectangleBorder(borderRadius: radius),
+          elevation: 0,
+          shadowColor: Colors.transparent,
+        ),
+        child: child,
+      );
+    }
+
+    if (isOutlined || isGhost || isSocial || !useGradient) {
+      return SizedBox(width: width ?? double.infinity, child: buttonWidget);
+    }
+
+    return SizedBox(
+      width: width ?? double.infinity,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppColors.gradientStart, AppColors.gradientEnd],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: radius,
+        ),
+        child: buttonWidget,
+      ),
+    );
   }
 
   Widget _buildChild() {
     if (isLoading) {
       return SizedBox(
-        height: 20.h,
-        width: 20.h,
+        height: 18.h,
+        width: 18.h,
         child: CircularProgressIndicator(
           strokeWidth: 2,
           valueColor: AlwaysStoppedAnimation<Color>(
-            isOutlined ? AppColors.primary : AppColors.white,
+            isOutlined || isGhost || isSocial
+                ? AppColors.primary
+                : AppColors.white,
           ),
         ),
       );
     }
+
+    final resolvedTextColor =
+        textColor ??
+        (isOutlined || isGhost || isSocial
+            ? AppColors.primary
+            : AppColors.white);
+
+    final textWidget = Text(
+      text,
+      style: AppTextStyles.button.copyWith(color: resolvedTextColor),
+    );
 
     if (icon != null) {
       return Row(
@@ -80,27 +139,11 @@ class CustomButton extends StatelessWidget {
         children: [
           icon!,
           SizedBox(width: 8.w),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color:
-                  textColor ??
-                  (isOutlined ? AppColors.primary : AppColors.white),
-            ),
-          ),
+          textWidget,
         ],
       );
     }
 
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 16.sp,
-        fontWeight: FontWeight.w600,
-        color: textColor ?? (isOutlined ? AppColors.primary : AppColors.white),
-      ),
-    );
+    return textWidget;
   }
 }

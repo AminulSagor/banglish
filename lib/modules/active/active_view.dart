@@ -3,19 +3,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../shared/widgets/active_person_card.dart';
-import '../../shared/widgets/filter_box_widget.dart';
-import 'active_people_controller.dart';
+import '../shared/widgets/active_person_card.dart';
+import '../shared/widgets/filter_box_widget.dart';
+import 'active_controller.dart';
 
-class ActivePeopleView extends GetView<ActivePeopleController> {
-  const ActivePeopleView({super.key});
+class ActiveView extends GetView<ActiveController> {
+  const ActiveView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        title: const Text('Active People'),
+        title: const Text('Active'),
         backgroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,

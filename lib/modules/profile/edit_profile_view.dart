@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/widgets.dart';
-import 'profile_controller.dart';
+import 'edit_profile_controller.dart';
 
-class ProfileView extends GetView<ProfileController> {
-  const ProfileView({super.key});
+class EditProfileView extends GetView<EditProfileController> {
+  const EditProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
+import '../core/services/services.dart';
 import '../modules/auth/auth.dart';
 import '../modules/shared/shared.dart';
-import '../modules/user/user.dart';
+import '../modules/modules.dart';
 import 'app_routes.dart';
 
 abstract class AppPages {
@@ -18,7 +19,14 @@ abstract class AppPages {
       name: AppRoutes.login,
       page: () => const LoginView(),
       binding: BindingsBuilder(() {
-        Get.lazyPut(() => AuthModuleService(), fenix: true);
+        Get.lazyPut(
+          () => AuthModuleService(
+            authService: Get.find<AuthService>(),
+            apiClient: Get.find<ApiClient>(),
+            tokenService: Get.find<TokenService>(),
+          ),
+          fenix: true,
+        );
         Get.lazyPut(() => LoginController());
       }),
     ),
@@ -26,7 +34,14 @@ abstract class AppPages {
       name: AppRoutes.signup,
       page: () => const SignupView(),
       binding: BindingsBuilder(() {
-        Get.lazyPut(() => AuthModuleService(), fenix: true);
+        Get.lazyPut(
+          () => AuthModuleService(
+            authService: Get.find<AuthService>(),
+            apiClient: Get.find<ApiClient>(),
+            tokenService: Get.find<TokenService>(),
+          ),
+          fenix: true,
+        );
         Get.lazyPut(() => SignupController());
       }),
     ),
@@ -34,7 +49,14 @@ abstract class AppPages {
       name: AppRoutes.forgotPassword,
       page: () => const ForgotPasswordView(),
       binding: BindingsBuilder(() {
-        Get.lazyPut(() => AuthModuleService(), fenix: true);
+        Get.lazyPut(
+          () => AuthModuleService(
+            authService: Get.find<AuthService>(),
+            apiClient: Get.find<ApiClient>(),
+            tokenService: Get.find<TokenService>(),
+          ),
+          fenix: true,
+        );
         Get.lazyPut(() => ForgotPasswordController());
       }),
     ),
@@ -55,33 +77,32 @@ abstract class AppPages {
 
     // Main pages
     GetPage(
-      name: AppRoutes.bottomNav,
-      page: () => const BottomNavView(),
+      name: AppRoutes.mainNavigation,
+      page: () => const NavigationBarView(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => UserModuleService(), fenix: true);
-        Get.lazyPut(() => BottomNavController());
+        Get.lazyPut(() => NavigationBarController());
         Get.lazyPut(() => FilterController());
-        Get.lazyPut(() => ActivePeopleController());
+        Get.lazyPut(() => ActiveController());
         Get.lazyPut(() => MessageController());
-        Get.lazyPut(() => RoomController());
+        Get.lazyPut(() => HomeController());
         Get.lazyPut(() => ProfileController());
-        Get.lazyPut(() => AccountViewController());
+        Get.lazyPut(() => EditProfileController());
       }),
     ),
 
     // User pages
     GetPage(
       name: AppRoutes.home,
-      page: () => const ActivePeopleView(),
+      page: () => const HomeView(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => UserModuleService(), fenix: true);
-        Get.lazyPut(() => FilterController());
-        Get.lazyPut(() => ActivePeopleController());
+        Get.lazyPut(() => HomeController());
       }),
     ),
     GetPage(
       name: AppRoutes.messages,
-      page: () => MessageListView(),
+      page: () => MessagesView(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => UserModuleService(), fenix: true);
         Get.lazyPut(() => MessageController());
@@ -100,10 +121,18 @@ abstract class AppPages {
     ),
     GetPage(
       name: AppRoutes.rooms,
-      page: () => const RoomListView(),
+      page: () => const HomeView(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => UserModuleService(), fenix: true);
-        Get.lazyPut(() => RoomController());
+        Get.lazyPut(() => HomeController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.myRooms,
+      page: () => const MyRoomsView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => UserModuleService(), fenix: true);
+        Get.lazyPut(() => HomeController());
       }),
     ),
     GetPage(
@@ -115,9 +144,9 @@ abstract class AppPages {
     ),
     GetPage(
       name: AppRoutes.profile,
-      page: () => ProfileView(),
+      page: () => const EditProfileView(),
       binding: BindingsBuilder(() {
-        Get.lazyPut(() => ProfileController());
+        Get.lazyPut(() => EditProfileController());
       }),
     ),
 

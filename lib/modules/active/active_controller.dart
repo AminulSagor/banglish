@@ -2,10 +2,10 @@ import 'package:get/get.dart';
 
 import '../../../core/services/api_error_handler.dart';
 import '../../../core/models/user_model.dart';
-import '../services/user_module_service.dart';
-import '../../shared/widgets/filter_controller.dart';
+import '../shared/services/user_module_service.dart';
+import '../shared/widgets/filter_controller.dart';
 
-class ActivePeopleController extends GetxController {
+class ActiveController extends GetxController {
   final FilterController _filter = Get.find<FilterController>();
   final ApiErrorHandler _apiErrorHandler = Get.find<ApiErrorHandler>();
   final UserModuleService _userService = Get.find<UserModuleService>();
@@ -54,7 +54,7 @@ class ActivePeopleController extends GetxController {
     isLoading.value = true;
 
     _apiErrorHandler
-        .handle<List<UserModel>>(
+        .call<List<UserModel>>(
           () => _userService.getActivePeople(),
           defaultErrorCode: 'ACTIVE_PEOPLE_LOAD_FAILED',
         )

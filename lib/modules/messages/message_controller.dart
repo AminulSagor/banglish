@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import '../../../core/services/api_error_handler.dart';
 import '../../../core/models/chat_model.dart';
-import '../services/user_module_service.dart';
+import '../shared/services/user_module_service.dart';
 
 class MessageController extends GetxController {
   final ApiErrorHandler _apiErrorHandler = Get.find<ApiErrorHandler>();
@@ -20,7 +20,7 @@ class MessageController extends GetxController {
   void loadChats() {
     isLoading.value = true;
     _apiErrorHandler
-        .handle<List<ChatModel>>(
+        .call<List<ChatModel>>(
           () => _userService.getChats(),
           defaultErrorCode: 'CHAT_LOAD_FAILED',
         )

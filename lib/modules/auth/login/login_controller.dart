@@ -41,11 +41,10 @@ class LoginController extends GetxController {
     isLoading.value = true;
 
     final payload = LoginPayloadModel(email: email, password: password);
-    final ApiResponse<AuthUserUiModel?> response = await _apiErrorHandler
-        .handle(
-          () => _authService.login(payload),
-          defaultErrorCode: 'LOGIN_FAILED',
-        );
+    final ApiResponse<AuthUserUiModel?> response = await _apiErrorHandler.call(
+      () => _authService.login(payload),
+      defaultErrorCode: 'LOGIN_FAILED',
+    );
 
     if (response.success && response.data != null) {
       currentUser.value = response.data;
@@ -57,7 +56,7 @@ class LoginController extends GetxController {
         snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(10),
       );
-      Get.offAllNamed(AppRoutes.bottomNav);
+      Get.offAllNamed(AppRoutes.mainNavigation);
     }
 
     isLoading.value = false;
@@ -65,7 +64,7 @@ class LoginController extends GetxController {
 
   void loginWithGoogle() async {
     isGoogleLoading.value = true;
-    final response = await _apiErrorHandler.handle<AuthUserUiModel?>(
+    final response = await _apiErrorHandler.call<AuthUserUiModel?>(
       () => _authService.signInWithGoogle(),
       defaultErrorCode: 'GOOGLE_LOGIN_FAILED',
     );
@@ -80,7 +79,7 @@ class LoginController extends GetxController {
         snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(10),
       );
-      Get.offAllNamed(AppRoutes.bottomNav);
+      Get.offAllNamed(AppRoutes.mainNavigation);
     }
 
     isGoogleLoading.value = false;
@@ -88,7 +87,7 @@ class LoginController extends GetxController {
 
   void loginWithFacebook() async {
     isFacebookLoading.value = true;
-    final response = await _apiErrorHandler.handle<AuthUserUiModel?>(
+    final response = await _apiErrorHandler.call<AuthUserUiModel?>(
       () => _authService.signInWithFacebook(),
       defaultErrorCode: 'FACEBOOK_LOGIN_FAILED',
     );
@@ -103,7 +102,7 @@ class LoginController extends GetxController {
         snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(10),
       );
-      Get.offAllNamed(AppRoutes.bottomNav);
+      Get.offAllNamed(AppRoutes.mainNavigation);
     }
 
     isFacebookLoading.value = false;

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 /// Handles service errors consistently and returns a fixed response contract.
 class ApiErrorHandler {
-  Future<ApiResponse<T>> handle<T>(
+  Future<ApiResponse<T>> call<T>(
     Future<T> Function() serviceCall, {
     String defaultErrorCode = 'UNKNOWN_ERROR',
     bool showSnackbar = true,
@@ -11,6 +11,11 @@ class ApiErrorHandler {
     try {
       final data = await serviceCall();
       return ApiResponse<T>.success(data);
+    } on ApiServiceException catch (e) {
+      if (showSnackbar) {
+        Get.snackbar('Error', e.message);
+      }
+      return ApiResponse<T>.failure(errorCode: e.errorCode ?? defaultErrorCode);
     } on FirebaseAuthException catch (e) {
       if (showSnackbar) {
         Get.snackbar('Error', e.message ?? 'Authentication failed');
@@ -23,6 +28,14 @@ class ApiErrorHandler {
       return ApiResponse<T>.failure(errorCode: defaultErrorCode);
     }
   }
+}
+
+/// Exception raised by module services when API calls fail with known messages.
+class ApiServiceException implements Exception {
+  final String message;
+  final String? errorCode;
+
+  const ApiServiceException({required this.message, this.errorCode});
 }
 
 /// Standard API response wrapper for service-controller communication.

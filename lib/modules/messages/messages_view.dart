@@ -6,8 +6,8 @@ import '../../../core/theme/app_colors.dart';
 import 'message_controller.dart';
 import 'single_message_view.dart';
 
-class MessageListView extends GetView<MessageController> {
-  MessageListView({super.key});
+class MessagesView extends GetView<MessageController> {
+  MessagesView({super.key});
 
   //final MessageController controller = Get.put(MessageController());
 

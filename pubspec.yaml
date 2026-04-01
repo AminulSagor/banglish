@@ -25,11 +25,14 @@ dependencies:
   mailer: ^6.0.1
   crypto: ^3.0.2
   shared_preferences: ^2.2.2
+  google_fonts: ^6.2.1
 
 
 
 
   cupertino_icons: ^1.0.8
+  dio: ^5.9.2
+  pretty_dio_logger: ^1.4.0
 
 dev_dependencies:
   flutter_test:

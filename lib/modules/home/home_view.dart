@@ -3,12 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../shared/widgets/room_card_widget.dart';
-import 'room_controller.dart';
-import 'inside_room_view.dart';
+import '../shared/widgets/room_card_widget.dart';
+import 'home_controller.dart';
 
-class RoomListView extends GetView<RoomController> {
-  const RoomListView({super.key});
+class HomeView extends GetView<HomeController> {
+  const HomeView({super.key});
 
   void _openAddRoomDialog() {
     Get.dialog(
@@ -26,7 +25,22 @@ class RoomListView extends GetView<RoomController> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        title: const Text('Room List'),
+        title: Column(
+          children: [
+            const Text(
+              'Language Practice Community',
+              style: TextStyle(color: AppColors.primary, fontSize: 15),
+            ),
+            // Text(
+            //   'Banglish',
+            //   style: TextStyle(
+            //     color: AppColors.grey800,
+            //     fontSize: 9.sp,
+            //     fontWeight: FontWeight.w700,
+            //   ),
+            // ),
+          ],
+        ),
         centerTitle: true,
         backgroundColor: AppColors.white,
         elevation: 0.5,
@@ -65,7 +79,7 @@ class RoomListView extends GetView<RoomController> {
               final room = controller.rooms[index];
               return RoomCardWidget(
                 room: room,
-                onJoin: () => Get.to(() => InsideRoomView(roomId: room.id)),
+                onJoin: () => controller.joinRoom(room.id),
               );
             },
           ),

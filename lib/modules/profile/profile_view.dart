@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:spoken/modules/user/user.dart';
 
 import '../../../core/theme/app_colors.dart';
-import 'profile_view.dart';
+import 'edit_profile_view.dart';
+import 'profile_controller.dart';
 
-class AccountView extends GetView<AccountViewController> {
-  const AccountView({super.key});
+class ProfileView extends GetView<ProfileController> {
+  const ProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class AccountView extends GetView<AccountViewController> {
                         _buildMenuItem(
                           icon: Icons.person_outline,
                           title: "Profile",
-                          onTap: () => Get.to(() => const ProfileView()),
+                          onTap: () => Get.to(() => const EditProfileView()),
                         ),
                         _buildMenuItem(
                           icon: Icons.block,
@@ -123,7 +123,7 @@ class AccountView extends GetView<AccountViewController> {
           ),
           SizedBox(height: 20.h),
           Obx(() {
-            final user = controller.profileController.currentUser.value;
+            final user = controller.editProfileController.currentUser.value;
             return Row(
               children: [
                 CircleAvatar(

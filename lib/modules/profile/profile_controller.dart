@@ -1,13 +1,14 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'profile_controller.dart';
+import 'edit_profile_controller.dart';
 import '../../../routes/app_routes.dart';
 
 /// Controller for the Account View
 /// This controller manages the account settings page
-class AccountViewController extends GetxController {
+class ProfileController extends GetxController {
   // Get the profile controller instance
-  ProfileController get profileController => Get.find<ProfileController>();
+  EditProfileController get editProfileController =>
+      Get.find<EditProfileController>();
 
   // Loading state
   final isLoading = false.obs;
@@ -204,6 +205,6 @@ class AccountViewController extends GetxController {
 
   /// Logout user
   void logout() {
-    profileController.logout();
+    editProfileController.logout();
   }
 }
